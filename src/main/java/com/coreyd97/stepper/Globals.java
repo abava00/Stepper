@@ -15,4 +15,7 @@ public class Globals {
     public static final String PREF_VARS_IN_SPIDER = "enableVarsInSpider";
     public static final String PREF_UPDATE_REQUEST_LENGTH = "updateRequestLength";
     public static final String PREF_ENABLE_SHORTCUT = "enableShortcut";
+    public static final String ADD_ENABLE_ALERT = "enableAlert";
+    public static String ADD_RETRY_COUNT = "retryCount";
+    public static String ADD_STEP_DELAY = "stepDelay";
 }

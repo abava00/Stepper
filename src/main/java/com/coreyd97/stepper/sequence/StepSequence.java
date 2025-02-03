@@ -14,12 +14,14 @@ import com.coreyd97.stepper.variable.VariableManager;
 import com.coreyd97.stepper.step.listener.StepListener;
 import com.coreyd97.stepper.step.view.StepPanel;
 import com.coreyd97.stepper.variable.StepVariable;
+import com.coreyd97.stepper.Globals;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 public class StepSequence
 {
@@ -69,26 +71,37 @@ public class StepSequence
                 }
 
                 boolean sequenceSuccess = false;
-                try {
-                    for (Step step : this.steps) {
-                        //Set step panel as selected panel
-                        StepPanel panel = sequenceContainer.getPanelForStep(step);
-                        sequenceContainer.setActivePanel(panel);
-                        List<StepVariable> rollingReplacements = this.getRollingVariablesUpToStep(step);
+                int c = 0;
+                int retryCount = Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT);
+                TRY:while(c < retryCount + 1){
+                    try {
+                        c++;
+                        for (Step step : this.steps) {
+                            //Set step panel as selected panel
+                            StepPanel panel = sequenceContainer.getPanelForStep(step);
+                            sequenceContainer.setActivePanel(panel);
+                            List<StepVariable> rollingReplacements = this.getRollingVariablesUpToStep(step);
 
-                        //Execute the step
-                        StepExecutionInfo stepExecutionInfo = step.executeStep(rollingReplacements);
-                        this.sequenceExecutionListeners.forEach(listener -> listener.sequenceStepExecuted(stepExecutionInfo));
+                            //Execute the step
+                            StepExecutionInfo stepExecutionInfo = step.executeStep(rollingReplacements);
+                            this.sequenceExecutionListeners.forEach(listener -> listener.sequenceStepExecuted(stepExecutionInfo));
+
+                            TimeUnit.MILLISECONDS.sleep(Stepper.getPreferences().getSetting(Globals.ADD_STEP_DELAY));
+                        }
+                        sequenceSuccess = true;
+                        break TRY;
+                    } catch (SequenceCancelledException e) {
+                        //User cancelled. Ignore it.
+                    } catch (SequenceExecutionException e) {
+                        JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
+                                "Sequence Stopped", JOptionPane.ERROR_MESSAGE);
+                    }catch (Exception e){
+                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_ALERT)){
+                                JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
+                                        "Sequence Failed", JOptionPane.ERROR_MESSAGE);
+                        }
+                        // callbacks.printOutput("message\n");
                     }
-                    sequenceSuccess = true;
-                } catch (SequenceCancelledException e) {
-                    //User cancelled. Ignore it.
-                } catch (SequenceExecutionException e) {
-                    JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
-                            "Sequence Stopped", JOptionPane.ERROR_MESSAGE);
-                }catch (Exception e){
-                    JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
-                            "Sequence Failed", JOptionPane.ERROR_MESSAGE);
                 }
                 for (SequenceExecutionListener stepLExecutionistener : sequenceExecutionListeners) {
                     stepLExecutionistener.afterSequenceEnd(sequenceSuccess);

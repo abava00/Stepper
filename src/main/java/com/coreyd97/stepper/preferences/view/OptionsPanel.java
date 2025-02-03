@@ -36,6 +36,48 @@ public class OptionsPanel extends JPanel {
         ComponentGroup configGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Config");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_UPDATE_REQUEST_LENGTH, "Automatically update the Content-Length header");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_ENABLE_SHORTCUT, "Enable Shortcut (Ctrl+Shift+G)");
+        configGroup.addPreferenceComponent(preferences, Globals.ADD_ENABLE_ALERT, "Enable Alert");
+
+        JPanel retryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel retryLabel = new JLabel("Retry Count");
+        JLabel retryLabel2 = new JLabel("(now: " + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) + ")");
+        JTextField retryInput = new JTextField(3);
+        // JButton textButton = new JButton("reflection ");
+        retryLabel.setPreferredSize(new Dimension(100, 20));
+        retryLabel2.setPreferredSize(new Dimension(100, 20));
+        retryPanel.add(retryLabel);
+        retryPanel.add(retryLabel2);
+        retryPanel.add(retryInput);
+        retryPanel.add(new JButton(new AbstractAction("reflection") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                retryInput.setText(retryInput.getText().replaceAll("[^0-9]", ""));
+                Stepper.getPreferences().setSetting(Globals.ADD_RETRY_COUNT, Integer.parseInt(retryInput.getText()));
+                retryLabel2.setText("(now: " + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) + ")");
+            }
+        }));
+        configGroup.add(retryPanel);
+
+
+        JPanel delayPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel delayLabel = new JLabel("Wait Time [ms]");
+        JLabel delayLabel2 = new JLabel("(now: " + Stepper.getPreferences().getSetting(Globals.ADD_STEP_DELAY) + ")");
+        JTextField delayInput = new JTextField(3);
+        delayLabel.setPreferredSize(new Dimension(100, 20));
+        delayLabel2.setPreferredSize(new Dimension(100, 20));
+        // delayInput.setPreferredSize(new Dimension(20, 20));
+        delayPanel.add(delayLabel);
+        delayPanel.add(delayLabel2);
+        delayPanel.add(delayInput);
+        delayPanel.add(new JButton(new AbstractAction("reflection") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                delayInput.setText(delayInput.getText().replaceAll("[^0-9]", ""));
+                Stepper.getPreferences().setSetting(Globals.ADD_STEP_DELAY, Long.parseLong(delayInput.getText()));
+                delayLabel2.setText("(now: " + Stepper.getPreferences().getSetting(Globals.ADD_STEP_DELAY) + ")");
+            }
+        }));
+        configGroup.add(delayPanel);
 
         ComponentGroup toolEnabledGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Allow Variables Usage");
         JCheckBox allToolsCheckbox = toolEnabledGroup.addPreferenceComponent(preferences, Globals.PREF_VARS_IN_ALL_TOOLS, "All Tools");
@@ -56,6 +98,8 @@ public class OptionsPanel extends JPanel {
             scannerCheckbox.setEnabled(individualEnabled);
             sequencerCheckbox.setEnabled(individualEnabled);
             extenderCheckbox.setEnabled(individualEnabled);
+            retryInput.setText("0");
+            delayInput.setText("200");
         }
 
         allToolsCheckbox.addChangeListener(changeEvent -> {
