@@ -1,5 +1,6 @@
 package com.coreyd97.stepper.sequence;
 
+import burp.IBurpExtenderCallbacks;
 import burp.IHttpRequestResponse;
 import com.coreyd97.stepper.Stepper;
 import com.coreyd97.stepper.exception.SequenceCancelledException;
@@ -75,7 +76,6 @@ public class StepSequence
                 int retryCount = Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT);
                 TRY:while(c < retryCount + 1){
                     try {
-                        c++;
                         for (Step step : this.steps) {
                             //Set step panel as selected panel
                             StepPanel panel = sequenceContainer.getPanelForStep(step);
@@ -93,15 +93,27 @@ public class StepSequence
                     } catch (SequenceCancelledException e) {
                         //User cancelled. Ignore it.
                     } catch (SequenceExecutionException e) {
-                        JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
-                                "Sequence Stopped", JOptionPane.ERROR_MESSAGE);
+                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_ALERT)){
+                                JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
+                                        "Sequence Stopped", JOptionPane.ERROR_MESSAGE);
+                        }else{
+                            Stepper.callbacks.issueAlert("Sequence Failed. " +
+                                    "Sequence name: " + this.title + ",  " +
+                                    "Retry count: " + c + "/" + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) +
+                                    "Exception: " + e.getMessage());
+                        }
                     }catch (Exception e){
                         if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_ALERT)){
                                 JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
                                         "Sequence Failed", JOptionPane.ERROR_MESSAGE);
+                        }else{
+                            Stepper.callbacks.issueAlert("Sequence Failed. " +
+                                    "Sequence name: " + this.title + ",  " +
+                                    "Retry count: " + c + "/" + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) +
+                                    "Exception: " + e.getMessage());
                         }
-                        // callbacks.printOutput("message\n");
                     }
+                        c++;
                 }
                 for (SequenceExecutionListener stepLExecutionistener : sequenceExecutionListeners) {
                     stepLExecutionistener.afterSequenceEnd(sequenceSuccess);
