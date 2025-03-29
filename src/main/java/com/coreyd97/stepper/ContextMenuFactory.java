@@ -3,6 +3,8 @@ package com.coreyd97.stepper;
 import burp.IContextMenuFactory;
 import burp.IContextMenuInvocation;
 import burp.IHttpRequestResponse;
+import burp.IRequestInfo;
+
 import com.coreyd97.stepper.sequence.StepSequence;
 import com.coreyd97.stepper.sequencemanager.SequenceManager;
 import com.coreyd97.stepper.step.Step;
@@ -62,12 +64,56 @@ public class ContextMenuFactory implements IContextMenuFactory {
 
         menuItems.add(addStepMenu);
 
-        if(invocation.getInvocationContext() == IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_REQUEST){
+        if (invocation.getInvocationContext() == IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_REQUEST || invocation.getInvocationContext() == IContextMenuInvocation.CONTEXT_INTRUDER_PAYLOAD_POSITIONS) {
             menuItems.addAll(buildCopyHeaderMenuItems(invocation));
             menuItems.addAll(buildVariableMenuItems(invocation));
         }
+
+        if (invocation.getInvocationContext() == IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_REQUEST) {
+            menuItems.addAll(buildCopyHeaderMenuItems(invocation));
+            menuItems.addAll(buildSendRepeaterMenuItems(invocation, messages[0]));
+            menuItems.addAll(buildSendIntruderMenuItems(invocation, messages[0]));
+        }
+
         return menuItems;
     }
+
+    private List<JMenuItem> buildSendRepeaterMenuItems(IContextMenuInvocation invocation, IHttpRequestResponse message) {
+        List<JMenuItem> menuItems = new ArrayList<>();
+
+        JMenu sendRepeater = new JMenu("Send Converted Request To Repeater");
+        JMenuItem beforeRepeater = new JMenuItem("Execute-Before Header");
+        beforeRepeater.addActionListener(
+                actionEvent -> ContextMenuFactory.this.convertStep(message, "Before", "Repeater"));
+        JMenuItem afterRepeater = new JMenuItem("Execute-After Header");
+        afterRepeater.addActionListener(
+                actionEvent -> ContextMenuFactory.this.convertStep(message, "After", "Repeater"));
+
+        menuItems.add(sendRepeater);
+        sendRepeater.add(beforeRepeater);
+        sendRepeater.add(afterRepeater);
+
+        return menuItems;
+    }
+
+    private List<JMenuItem> buildSendIntruderMenuItems(IContextMenuInvocation invocation, IHttpRequestResponse message) {
+        List<JMenuItem> menuItems = new ArrayList<>();
+
+        JMenu sendIntruder = new JMenu("Send Converted Request To Intruder");
+        JMenuItem beforeIntruder = new JMenuItem("Execute-Before Header");
+        beforeIntruder.addActionListener(
+                actionEvent -> ContextMenuFactory.this.convertStep(message, "Before", "Intruder"));
+        JMenuItem afterIntruder = new JMenuItem("Execute-After Header");
+        afterIntruder.addActionListener(
+                actionEvent -> ContextMenuFactory.this.convertStep(message, "After", "Intruder"));
+
+        menuItems.add(sendIntruder);
+        sendIntruder.add(beforeIntruder);
+        sendIntruder.add(afterIntruder);
+
+        return menuItems;
+    }
+
 
     private List<JMenuItem> buildCopyHeaderMenuItems(IContextMenuInvocation invocation){
         List<JMenuItem> menuItems = new ArrayList<>();
@@ -172,5 +218,57 @@ public class ContextMenuFactory implements IContextMenuFactory {
             menuItems.add(item);
         }
         return menuItems;
+    }
+
+    private void convertStep(IHttpRequestResponse message, String BeforeAfter, String tool){
+        String seqTitle = Stepper.getUI().getSelectedStepSet().getStepSequence().getTitle();
+        IRequestInfo msgInfo = Stepper.callbacks.getHelpers().analyzeRequest(message.getRequest());
+        // Collection<StepVariable> variables = sequenceManager.getRollingVariablesFromAllSequences().values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        List<StepVariable> variables = Stepper.getUI().getSelectedStepSet().getStepSequence().getRollingVariablesUpToStep(
+                Stepper.getUI().getSelectedStepSet().getSelectedStepPanel().getStep());
+
+        // converted request information
+        IRequestInfo newreqInfo = Stepper.callbacks.getHelpers().analyzeRequest(message);
+        List<String> moHeader = new ArrayList<>();
+        String host = newreqInfo.getUrl().getHost();
+        int port = newreqInfo.getUrl().getPort();
+        boolean isHttps = newreqInfo.getUrl().getProtocol().equalsIgnoreCase("https");
+
+        /* Assign sequence names to header variables */
+        // headers
+        for (String header : msgInfo.getHeaders()) {
+            for (StepVariable variable : variables) {
+                String variableString = StepVariable.createVariableString(variable.getIdentifier());
+                header = header.replace(variableString, "$VAR:" + seqTitle + ":" + variable.getIdentifier() + "$");
+            }
+            moHeader.add(header);
+        }
+
+        // add execute header
+        if (BeforeAfter.equals("Before")) {
+            moHeader.add(MessageProcessor.EXECUTE_BEFORE_HEADER + ": " + seqTitle);
+        } else if (BeforeAfter.equals("After")) {
+            moHeader.add(MessageProcessor.EXECUTE_AFTER_HEADER + ": " + seqTitle);
+        }
+
+        /* Assign sequence names to header variables */
+        int bodyOffset = msgInfo.getBodyOffset();
+        byte[] moBody = Arrays.copyOfRange(message.getRequest(), bodyOffset, message.getRequest().length);
+        // convert body to string
+        String body = new String(moBody);
+        for (StepVariable variable : variables) {
+            String variableString = StepVariable.createVariableString(variable.getIdentifier());
+            body = body.replace(variableString, "$VAR:" + seqTitle + ":" + variable.getIdentifier() + "$");
+        }
+        moBody = body.getBytes();
+        byte[] newreq = Stepper.callbacks.getHelpers().buildHttpMessage(moHeader, moBody);
+
+        if (tool.equals("Repeater")) {
+            Stepper.callbacks.sendToRepeater(host, port, isHttps, newreq, null);
+        } else if (tool.equals("Intruder")) {
+            Stepper.callbacks.sendToIntruder(host, port, isHttps, newreq, null);
+        } else {// send to clipboard
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(Stepper.callbacks.getHelpers().bytesToString(newreq)), null);
+        }
     }
 }

@@ -13,7 +13,6 @@ dependencies {
     compileOnly 'net.portswigger.burp.extender:burp-extender-api:2.3'
     implementation 'com.github.CoreyD97:BurpExtenderUtilities:c03c1a2a1'
     compileOnly 'com.formdev:flatlaf:3.0'
-    testRuntimeOnly files('/home/corey/BurpSuitePro/burpsuite_pro.jar')
 }
 
 jar{
