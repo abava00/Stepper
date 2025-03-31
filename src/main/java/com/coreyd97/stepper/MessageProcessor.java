@@ -96,11 +96,16 @@ public class MessageProcessor implements IHttpListener {
 
                     if(isUnprocessable(messageInfo.getRequest())){
                         //If there's unicode issues, we're likely acting on binary data. Warn the user.
-                        int result = JOptionPane.showConfirmDialog(Stepper.getUI().getUiComponent(),
-                                "The request contains non UTF characters.\nStepper is able to make the replacements, " +
-                                        "but some of the binary data may be lost. Continue?",
-                                "Stepper Replacement Error", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                        if(result == JOptionPane.NO_OPTION) return;
+                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_NU_ALERT)){
+                            int result = JOptionPane.showConfirmDialog(Stepper.getUI().getUiComponent(),
+                                    "The request contains non UTF characters.\nStepper is able to make the replacements, " +
+                                            "but some of the binary data may be lost. Continue?",
+                                    "Stepper Replacement Error", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                            if(result == JOptionPane.NO_OPTION) return;
+                        } else {
+                            Stepper.callbacks.issueAlert("Replacement Error. " +
+                                    "\nThe request contained a non-UTF string, but the sequence continued.");
+                        }
                     }
 
                     try {

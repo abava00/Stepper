@@ -93,24 +93,24 @@ public class StepSequence
                     } catch (SequenceCancelledException e) {
                         //User cancelled. Ignore it.
                     } catch (SequenceExecutionException e) {
-                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_ALERT)){
+                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_SE_ALERT)){
                                 JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
                                         "Sequence Stopped", JOptionPane.ERROR_MESSAGE);
                         }else{
-                            Stepper.callbacks.issueAlert("Sequence Failed. " +
-                                    "Sequence name: " + this.title + ",  " +
-                                    "Retry count: " + c + "/" + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) +
-                                    "Exception: " + e.getMessage());
+                            Stepper.callbacks.issueAlert("Sequence Failed.  " +
+                                    "\nSequence name: " + this.title + "  " +
+                                    "\nRetry count: " + c + "/" + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) + "  " +
+                                    "\nException: " + e.getMessage());
                         }
                     }catch (Exception e){
-                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_ALERT)){
+                        if(Stepper.getPreferences().getSetting(Globals.ADD_ENABLE_SE_ALERT)){
                                 JOptionPane.showMessageDialog(Stepper.getUI().getUiComponent(), e.getMessage(),
                                         "Sequence Failed", JOptionPane.ERROR_MESSAGE);
                         }else{
-                            Stepper.callbacks.issueAlert("Sequence Failed. " +
-                                    "Sequence name: " + this.title + ",  " +
-                                    "Retry count: " + c + "/" + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) +
-                                    "Exception: " + e.getMessage());
+                            Stepper.callbacks.issueAlert("Sequence Failed.  " +
+                                    "\nSequence name: " + this.title + "  " +
+                                    "\nRetry count: " + c + "/" + Stepper.getPreferences().getSetting(Globals.ADD_RETRY_COUNT) + "  " +
+                                    "\nException: " + e.getMessage());
                         }
                     }
                         c++;

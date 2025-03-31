@@ -36,7 +36,8 @@ public class OptionsPanel extends JPanel {
         ComponentGroup configGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Config");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_UPDATE_REQUEST_LENGTH, "Automatically update the Content-Length header");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_ENABLE_SHORTCUT, "Enable Shortcut (Ctrl+Shift+G)");
-        configGroup.addPreferenceComponent(preferences, Globals.ADD_ENABLE_ALERT, "Enable Alert");
+        configGroup.addPreferenceComponent(preferences, Globals.ADD_ENABLE_SE_ALERT, "Enable \"Sequence Fail\" Alert");
+        configGroup.addPreferenceComponent(preferences, Globals.ADD_ENABLE_NU_ALERT, "Enable \"Replacement Error\" Alert");
 
         JPanel retryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel retryLabel = new JLabel("Retry Count");

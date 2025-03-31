@@ -12,6 +12,8 @@ import com.coreyd97.stepper.sequencemanager.SequenceManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
@@ -87,6 +89,29 @@ public class StepperUI implements ITab {
         CustomTabComponent tabComponent = new CustomTabComponent( newTabLocation-1,
                 sequence.getTitle(), false,
                 true, onTitleChange, true, onRemoveClicked);
+
+
+        tabComponent.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if(SwingUtilities.isRightMouseButton(e)){
+                    JPopupMenu popupMenu = new JPopupMenu();
+                    JMenuItem copyStep = new JMenuItem("Copy Step Sequence");
+
+                    copyStep.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent actionEvent) {
+                            Stepper.callbacks.issueAlert("to be implemented");
+                        }
+
+                    });
+
+                    popupMenu.add(copyStep);
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
 
         this.tabbedPane.setTabComponentAt(newTabLocation, tabComponent);
         this.tabbedPane.setSelectedIndex(newTabLocation);
