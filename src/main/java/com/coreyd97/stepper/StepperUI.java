@@ -4,6 +4,8 @@ import burp.ITab;
 import com.coreyd97.BurpExtenderUtilities.CustomTabComponent;
 import com.coreyd97.BurpExtenderUtilities.PopOutPanel;
 import com.coreyd97.stepper.sequencemanager.listener.StepSequenceListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.coreyd97.stepper.about.view.AboutPanel;
 import com.coreyd97.stepper.preferences.view.OptionsPanel;
 import com.coreyd97.stepper.sequence.StepSequence;
@@ -16,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
@@ -101,7 +104,13 @@ public class StepperUI implements ITab {
                     copyStep.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent actionEvent) {
-                            Stepper.callbacks.issueAlert("to be implemented");
+                            int componentIndex = tabbedPane.indexOfComponent(tab);
+                            StepSequence currentSeq = sequenceManager.getSequences().get(componentIndex);
+                            Gson gson = Stepper.getGsonProvider().getGson();
+                            String str = "[" + gson.toJson(currentSeq, new TypeToken<StepSequence>(){}.getType()) + "]";
+                            ArrayList<StepSequence> newSeq = Stepper.getGsonProvider().getGson().fromJson(str, new TypeToken<ArrayList<StepSequence>>(){}.getType());
+                            newSeq.get(0).setTitle(currentSeq.getTitle() + "_copy");
+                            sequenceManager.addStepSequence(newSeq.get(0));
                         }
 
                     });
