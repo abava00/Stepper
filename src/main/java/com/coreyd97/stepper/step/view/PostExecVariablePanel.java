@@ -1,15 +1,21 @@
 package com.coreyd97.stepper.step.view;
 
+import com.coreyd97.stepper.Stepper;
 import com.coreyd97.stepper.util.dialog.VariableCreationDialog;
 import com.coreyd97.stepper.variable.PostExecutionStepVariable;
 import com.coreyd97.stepper.variable.RegexVariable;
 import com.coreyd97.stepper.variable.StepVariable;
 import com.coreyd97.stepper.variable.VariableManager;
+import com.google.gson.Gson;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PostExecVariablePanel extends VariablePanel {
 
@@ -28,22 +34,57 @@ public class PostExecVariablePanel extends VariablePanel {
                     JMenuItem getValue = new JMenuItem("get selected value");
 
                     getValue.addActionListener(actionEvent -> {
-                        int selectedRow = variableTable.getSelectedRow();
+                        // int selectedRow = variableTable.getSelectedRow();
+                            // PostExecutionStepVariable variable = variableManager.getPostExecutionVariables().get(selectedRow);
+                            // String value = variable.getValue();
+                            // String identifier = variable.getIdentifier();
+                        // String condition = variable.getConditionText();
+
+                        // get selected multiple values
+                        int[] selectedRows = variableTable.getSelectedRows();
+
+                        // export to String selected values as json
+                        String json = "{\"variables\":[";
+
+                        for (int i = 0; i < selectedRows.length; i++) {
+                            int selectedRow = selectedRows[i];
                             PostExecutionStepVariable variable = variableManager.getPostExecutionVariables().get(selectedRow);
                             String value = variable.getValue();
                             String identifier = variable.getIdentifier();
                             String condition = variable.getConditionText();
+                            Map<String, Object> child = new HashMap<>();
+                            child.put("pattern", condition);
+                            child.put("identifier", identifier);
+                            child.put("type", "Regex");
+                            String childJson = new Gson().toJson(child);
+                            if (i != selectedRows.length - 1) {
+                                json += childJson + ",";
+                            }
 
-                            // JOptionPane.showMessageDialog(variableTable, "ident: " + identifier + "\ncon: " + condition + "\nval: " + value, "Variable Value", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        json += "]}";
+                        //output
+                        Stepper.callbacks.issueAlert(json);
 
-                            // convert to StepVariable
-                            PostExecutionStepVariable newVariable = new RegexVariable(identifier);
-                            newVariable.setIdentifier(identifier);
-                            newVariable.setCondition(condition);
-                            variableManager.addVariable(newVariable);
+                        // for (int selectedRow : selectedRows) {
+                        // Stepper.callbacks.issueAlert("selected rows: " + selectedRow);
+                        //     PostExecutionStepVariable variable = variableManager.getPostExecutionVariables().get(selectedRow);
+                        //     String value = variable.getValue();
+                        //     String identifier = variable.getIdentifier();
+                        //     String condition = variable.getConditionText();
+                        //     // PostExecutionStepVariable newVariable = new RegexVariable(identifier);
+                        //     // newVariable.setIdentifier(identifier);
+                        //     // newVariable.setCondition(condition);
+                        //     // variableManager.addVariable(newVariable);
+
+                        //     sv.append("value: ").append(value).append("\n");
+                        // }
                     });
                     popupMenu.add(getValue);
                     popupMenu.show(variableTable, e.getX(), e.getY());
+
+                    // conver to json
+
                 }
             }
         });
