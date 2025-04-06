@@ -101,6 +101,7 @@ public class StepperUI implements ITab {
                     JPopupMenu popupMenu = new JPopupMenu();
                     JMenuItem copyStep = new JMenuItem("Copy Step Sequence");
 
+
                     copyStep.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent actionEvent) {
