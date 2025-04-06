@@ -1,20 +1,17 @@
 package com.coreyd97.stepper.step.view;
 
-import com.coreyd97.stepper.Stepper;
 import com.coreyd97.stepper.util.dialog.VariableCreationDialog;
 import com.coreyd97.stepper.variable.PostExecutionStepVariable;
-import com.coreyd97.stepper.variable.RegexVariable;
 import com.coreyd97.stepper.variable.StepVariable;
 import com.coreyd97.stepper.variable.VariableManager;
 import com.google.gson.Gson;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class PostExecVariablePanel extends VariablePanel {
@@ -31,25 +28,16 @@ public class PostExecVariablePanel extends VariablePanel {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     JPopupMenu popupMenu = new JPopupMenu();
-                    JMenuItem getValue = new JMenuItem("get selected value");
+                    JMenuItem getValue = new JMenuItem("Get Selected Variable");
 
                     getValue.addActionListener(actionEvent -> {
-                        // int selectedRow = variableTable.getSelectedRow();
-                            // PostExecutionStepVariable variable = variableManager.getPostExecutionVariables().get(selectedRow);
-                            // String value = variable.getValue();
-                            // String identifier = variable.getIdentifier();
-                        // String condition = variable.getConditionText();
-
-                        // get selected multiple values
                         int[] selectedRows = variableTable.getSelectedRows();
 
-                        // export to String selected values as json
+                        // convert to String selected values as json
                         String json = "{\"variables\":[";
-
                         for (int i = 0; i < selectedRows.length; i++) {
                             int selectedRow = selectedRows[i];
                             PostExecutionStepVariable variable = variableManager.getPostExecutionVariables().get(selectedRow);
-                            String value = variable.getValue();
                             String identifier = variable.getIdentifier();
                             String condition = variable.getConditionText();
                             Map<String, Object> child = new HashMap<>();
@@ -59,31 +47,28 @@ public class PostExecVariablePanel extends VariablePanel {
                             String childJson = new Gson().toJson(child);
                             if (i != selectedRows.length - 1) {
                                 json += childJson + ",";
+                            } else {
+                                json += childJson;
                             }
 
                         }
                         json += "]}";
-                        //output
-                        Stepper.callbacks.issueAlert(json);
-
-                        // for (int selectedRow : selectedRows) {
-                        // Stepper.callbacks.issueAlert("selected rows: " + selectedRow);
-                        //     PostExecutionStepVariable variable = variableManager.getPostExecutionVariables().get(selectedRow);
-                        //     String value = variable.getValue();
-                        //     String identifier = variable.getIdentifier();
-                        //     String condition = variable.getConditionText();
-                        //     // PostExecutionStepVariable newVariable = new RegexVariable(identifier);
-                        //     // newVariable.setIdentifier(identifier);
-                        //     // newVariable.setCondition(condition);
-                        //     // variableManager.addVariable(newVariable);
-
-                        //     sv.append("value: ").append(value).append("\n");
-                        // }
+                        //output to clipboard
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(json), null);
                     });
-                    popupMenu.add(getValue);
-                    popupMenu.show(variableTable, e.getX(), e.getY());
+                    if (variableTable.getSelectedRow() >= 0) {
+                        popupMenu.add(getValue);
+                        popupMenu.show(variableTable, e.getX(), e.getY());
+                    }
 
-                    // conver to json
+                    // JMenuItem setValue = new JMenuItem("Set Variable From Clipboard");
+                    // setValue.addActionListener(actionEvent -> {
+                    //     String json = null;
+                    //     addVariableEvent(json);
+                    // });
+                    // popupMenu.add(setValue);
+                    // popupMenu.show(e.getComponent(), e.getX(), e.getY());
+
 
                 }
             }
