@@ -70,7 +70,6 @@ public class ContextMenuFactory implements IContextMenuFactory {
         }
 
         if (invocation.getInvocationContext() == IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_REQUEST) {
-            menuItems.addAll(buildCopyHeaderMenuItems(invocation));
             menuItems.addAll(buildSendRepeaterMenuItems(invocation, messages[0]));
             menuItems.addAll(buildSendIntruderMenuItems(invocation, messages[0]));
         }
