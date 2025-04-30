@@ -33,6 +33,14 @@ public class OptionsPanel extends JPanel {
     }
 
     private void buildPanel() {
+        ComponentGroup shortGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Custom Shortcut");
+        ComponentGroup step_shortGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Execute Step");
+        step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_ALT, "use ALT");
+        step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_CTR, "use CTR");
+        step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_SFT, "use SHI");
+        shortGroup.add(step_shortGroup);
+
+
         ComponentGroup configGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Config");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_UPDATE_REQUEST_LENGTH, "Automatically update the Content-Length header");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_ENABLE_SHORTCUT, "Enable Shortcut (Ctrl+Shift+G)");
@@ -203,9 +211,7 @@ public class OptionsPanel extends JPanel {
         }));
 
         PanelBuilder panelBuilder = new PanelBuilder();
-        panelBuilder.setComponentGrid(new JComponent[][]{new JComponent[]{toolEnabledGroup, importGroup},
-                                                                new JComponent[]{toolEnabledGroup, exportGroup},
-                                                                new JComponent[]{configGroup, configGroup}});
+        panelBuilder.setComponentGrid(new JComponent[][]{new JComponent[]{toolEnabledGroup, importGroup}, new JComponent[]{toolEnabledGroup, exportGroup}, new JComponent[]{configGroup, configGroup}, new JComponent[]{shortGroup, shortGroup}});
         panelBuilder.setAlignment(Alignment.TOPMIDDLE);
         this.add(panelBuilder.build());
     }

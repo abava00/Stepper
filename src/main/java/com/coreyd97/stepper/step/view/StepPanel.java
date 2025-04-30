@@ -21,8 +21,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Field;
 import java.net.URL;
 
 public class StepPanel extends JPanel implements StepVariableListener {
@@ -123,6 +125,23 @@ public class StepPanel extends JPanel implements StepVariableListener {
                 }
             }).start();
         });
+
+        ActionMap actionMap = getActionMap();
+        actionMap.put("ExecuteStep", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                executeStepButton.doClick();
+            }
+        });
+
+        //Set button Shortcut
+        String key = "q";
+        try{
+            Field field = KeyEvent.class.getField("VK_" + key.toUpperCase());
+            int keyCode = field.getInt(null);
+            InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
+            inputMap.put(KeyStroke.getKeyStroke(keyCode, KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK), "ExecuteStep");
+        } catch (Exception e) { }
 
         JButton editTargetButton = new JButton("Edit");
 

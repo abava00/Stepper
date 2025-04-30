@@ -19,4 +19,7 @@ public class Globals {
     public static final String ADD_ENABLE_NU_ALERT = "enableNUAlert";
     public static String ADD_RETRY_COUNT = "retryCount";
     public static String ADD_STEP_DELAY = "stepDelay";
+    public static String ADD_MD_ES_ALT = "ES ALT";
+    public static String ADD_MD_ES_CTR = "ES CTR";
+    public static String ADD_MD_ES_SFT = "ES_SFT";
 }
