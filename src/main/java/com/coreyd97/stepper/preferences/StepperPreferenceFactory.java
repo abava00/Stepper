@@ -71,5 +71,6 @@ public class StepperPreferenceFactory extends PreferenceFactory {
         prefs.registerSetting(Globals.ADD_MD_ES_ALT, Boolean.class, false, Preferences.Visibility.GLOBAL);
         prefs.registerSetting(Globals.ADD_MD_ES_CTR, Boolean.class, false, Preferences.Visibility.GLOBAL);
         prefs.registerSetting(Globals.ADD_MD_ES_SFT, Boolean.class, false, Preferences.Visibility.GLOBAL);
+        prefs.registerSetting(Globals.ADD_MD_ES_KEY, String.class, "", Preferences.Visibility.GLOBAL);
     }
 }

@@ -12,6 +12,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -34,12 +36,16 @@ public class OptionsPanel extends JPanel {
 
     private void buildPanel() {
         ComponentGroup shortGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Custom Shortcut");
-        ComponentGroup step_shortGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Execute Step");
+        ComponentGroup step_shortGroup = new ComponentGroup(ComponentGroup.Orientation.HORIZONTAL, "Execute Step");
         step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_ALT, "use ALT");
         step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_CTR, "use CTR");
-        step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_SFT, "use SHI");
-        shortGroup.add(step_shortGroup);
+        step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_SFT, "use SFT");
+        step_shortGroup.addPreferenceComponent(preferences, Globals.ADD_MD_ES_KEY, "use KEY");
+        // JTextField usernameField = new JTextField();
+        // ((AbstractDocument) usernameField.getDocument()).setDocumentFilter(new LimitedLengthDocumentFilter(1));
+        // shortGroup.addComponentWithLabel("hello", usernameField);
 
+        shortGroup.add(step_shortGroup);
 
         ComponentGroup configGroup = new ComponentGroup(ComponentGroup.Orientation.VERTICAL, "Config");
         configGroup.addPreferenceComponent(preferences, Globals.PREF_UPDATE_REQUEST_LENGTH, "Automatically update the Content-Length header");
@@ -66,7 +72,6 @@ public class OptionsPanel extends JPanel {
             }
         }));
         configGroup.add(retryPanel);
-
 
         JPanel delayPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel delayLabel = new JLabel("Wait Time [ms]");

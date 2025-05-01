@@ -22,4 +22,5 @@ public class Globals {
     public static String ADD_MD_ES_ALT = "ES ALT";
     public static String ADD_MD_ES_CTR = "ES CTR";
     public static String ADD_MD_ES_SFT = "ES_SFT";
+    public static String ADD_MD_ES_KEY = "ES_KEY";
 }

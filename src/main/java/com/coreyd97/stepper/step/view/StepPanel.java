@@ -3,6 +3,7 @@ package com.coreyd97.stepper.step.view;
 import burp.IMessageEditor;
 import com.coreyd97.BurpExtenderUtilities.Alignment;
 import com.coreyd97.BurpExtenderUtilities.PanelBuilder;
+import com.coreyd97.stepper.Globals;
 import com.coreyd97.stepper.Stepper;
 import com.coreyd97.stepper.exception.SequenceCancelledException;
 import com.coreyd97.stepper.exception.SequenceExecutionException;
@@ -111,6 +112,10 @@ public class StepPanel extends JPanel implements StepVariableListener {
         executeStepButton.addActionListener(actionEvent -> {
             new Thread(() -> {
                 executeStepButton.setEnabled(false);
+
+
+                Stepper.callbacks.issueAlert(Stepper.getPreferences().getSetting(Globals.ADD_MD_ES_KEY));
+
                 try {
                     step.executeStep();
                 }catch (SequenceCancelledException ignored){
@@ -135,7 +140,21 @@ public class StepPanel extends JPanel implements StepVariableListener {
         });
 
         //Set button Shortcut
-        String key = "q";
+        actionMap.clear();
+
+        String key = "A";
+        Stepper.callbacks.issueAlert(key);
+        key = Stepper.getPreferences().getSetting(Globals.ADD_MD_ES_KEY);
+
+
+        // trigger event when forcus to request editor
+        requestEditor.getComponent().addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                Stepper.callbacks.issueAlert("update");
+            }
+        });
+
+
         try{
             Field field = KeyEvent.class.getField("VK_" + key.toUpperCase());
             int keyCode = field.getInt(null);
